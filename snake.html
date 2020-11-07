@@ -145,7 +145,7 @@
                 //从event中获取用户按下的按键的ascII码，在火狐中需要用event.which获取
                 var key = evt.which || evt.KeyCode;
                 //将不同ascII码指令分开处理
-                t1 = window.setInterval(go, 10);
+              
                 switch (key) {
                     case 65:        //左a
                         {
@@ -266,7 +266,7 @@
                 //游戏结束时弹窗的内容
                 var str = "游戏结束！！！您的得分是：" + score;
                 alert(str);
-                
+                window.location.reload();
                 score=0;
                 $("score").innerHTML =0;
                 body.remove;
