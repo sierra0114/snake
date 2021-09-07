@@ -52,19 +52,22 @@
             z-index: 10;
             position: relative;
         }
-        div p{
+
+        div p {
             top: -30px;
         }
-        .background{
+
+        .background {
             margin: 0 auto;
             width: 80px;
             height: 35px;
-            background-color:black;
+            background-color: black;
             opacity: 10%;
             border-radius: 0 0 20px 20px;
             z-index: 9;
         }
-        span{
+
+        span {
             background: transparent;
         }
     </style>
@@ -79,109 +82,95 @@
 
         <!-- 在这里加入newbox -->
     </div>
-    
+
     <p>《贪吃蛇》
-    </br>玩法简介：控制蛇吃到食物，每吃到一个食物都会增加蛇的长度，蛇碰撞四壁或者自己的身体时游戏结束。
-    </br>操作方式：w-向上移动，s-向下移动，a-向左移动，d-向右移动</p>
-    
+        </br>玩法简介：控制蛇吃到食物，每吃到一个食物都会增加蛇的长度，蛇碰撞四壁或者自己的身体时游戏结束。
+        </br>操作方式：w-向上移动，s-向下移动，a-向左移动，d-向右移动</p>
+    <div class="controller">
+        长<input type="text" class="text-width" placeholder="长度" />
+        宽<input type="text" class="text-height" placeholder="宽度" />
+        <input type="button" class="button-1" value="慢" onclick="speed_slow" />
+        <input type="button" class="button-1" value="中" onclick="speed_medium" />
+        <input type="button" class="button-1" value="快" onclick="speed_fast" />
+    </div>
 
 
     <script>
         window.onload = function () {
-            //$通过id返回元素
-            function $(id) {
-                return document.getElementById(id);
-            }
+            const snake = $("snake");//蛇头
+            let foods = $("foods");//食物
+            let body = [];//蛇头走过的位置,每10毫秒记录一次
+            //蛇身用一个数组body来装，body[num][0]内部是left(x)数据，body[num][1]内部是top(y)数据
+            // [
+            //   [100px,100px],
+            //   [101px,100px],
+            //   [102px,100px],
+            //   [103px,100px]
+            //                 ]
+            let num = 0;//body数组的序号
+            let speed = 10;//蛇的移动速度
+            let score = 0;//得分
+            let is_contact = false;//是否碰撞
 
-            //获取snake，foods元素
-            var snake = $("snake");
-            var foods = $("foods");
-
-            //蛇身用一个数组body来装，body[num,0]内部是left数据，body[num,1]内部是top数据
-            // {
-            //  [100px,100px],
-            //  [101px,100px],
-            //  [102px,100px],
-            //  [103px,100px]
-            //                }
-            var body = new Array();
-            var num = 0;
-
-            //判断情况是或者否
-            var flag = false;
-
-            //游戏得分
-            var score = 0;
-
-            //div元素数组，元素是class为body的div元素
-            var boxes = new Array;
-
-
+            let boxes = [];//div元素数组，元素是class为body的div元素
 
             //t1计时器初始化
-            var t1 = window.setInterval(go, 10);
-            function go() {
-                //记录snake盒子走过的所有位置，放入二维string数组body
+            let t1 = window.setInterval(() => {//记录snake盒子走过的所有位置，放入数组body
                 body.push([snake.offsetLeft, snake.offsetTop]);
                 console.log(body[num][0]);
-                confirmWidth();
-                confirmHeight();
+                confirmBorder();
                 follow();
                 food();
-            }
+            }, speed);
 
-            //t2计时器
-            var t2;
 
-            //onkeydown事件绑定处理函数keydown
-            document.onkeydown = keydown;
+
 
             //keydown函数-判断玩家按下的按键（wsad）并按指令运动snake
             //创建新计时器来每零点一秒移动一次snake
             //同时验证是否碰壁，并让body跟随snake移动
-            function keydown(e) {
+            document.onkeydown = function (e) {
                 //浏览器传入的event，在ie中需要用window.event获取
-                var evt = e || window.event;
+                let evt = e || window.event;
                 //从event中获取用户按下的按键的ascII码，在火狐中需要用event.which获取
-                var key = evt.which || evt.KeyCode;
+                let key = evt.which || evt.KeyCode;
                 //将不同ascII码指令分开处理
-              
+                let t2 = null;
                 switch (key) {
-                    case 65:        //左a
+                    case 65, 75:        //左
                         {
                             clearInterval(t2);
                             t2 = setInterval(() => {
                                 snake.style.left = snake.offsetLeft - 1 + "px";
                                 snake.style.top = snake.offsetTop + "px";
-                            }, 10);
-
+                            }, speed);
                         }
                         break;
-                    case 87:         //上w
+                    case 87, 72:         //上
                         {
                             clearInterval(t2);
                             t2 = setInterval(() => {
                                 snake.style.top = snake.offsetTop - 1 + "px";
                                 snake.style.left = snake.offsetLeft + "px";
-                            }, 10);
+                            }, speed);
                             break;
                         }
-                    case 68:        //右d
+                    case 68, 77:        //右
                         {
                             clearInterval(t2);
                             t2 = setInterval(() => {
                                 snake.style.left = snake.offsetLeft + 1 + "px";
                                 snake.style.top = snake.offsetTop + "px";
-                            }, 10);
+                            }, speed);
                             break;
                         }
-                    case 83:        //下s
+                    case 83, 80:        //下
                         {
                             clearInterval(t2);
                             t2 = setInterval(() => {
                                 snake.style.top = snake.offsetTop + 1 + "px";
                                 snake.style.left = snake.offsetLeft + "px";
-                            }, 10);
+                            }, speed);
                         }
                         break;
                     default:
@@ -193,8 +182,8 @@
             function follow() {
                 num += 1;
                 if (score > 0) {
-                    var place = 0;
-                    for (var i = 0; i < boxes.length; i++) {
+                    let place = 0;
+                    for (let i = 0; i < boxes.length; i++) {
                         place += 15;
                         boxes[i].style.left = body[num - place][0] + "px";
                         boxes[i].style.top = body[num - place][1] + "px";
@@ -206,36 +195,30 @@
             //food-检查蛇是否吃到了食物
             //     是则分数加一并让foods方块重新随机出现，给body数组增加新元素
             function food() {
-                flag = check(snake, foods);
-                if (flag == true) {
+                is_contact = check_is_contact(snake, foods);
+                if (is_contact == true) {
                     score++;
                     $("score").innerHTML = score;
                     foods.style.left = parseInt(Math.floor(Math.random() * 580)) + "px";
                     foods.style.top = parseInt(Math.floor(Math.random() * 380)) + "px";
                     //新建一个div元素，用于蛇吃到食物后向数组内添加元素
-                    var newbox = document.createElement("div");
+                    let newbox = document.createElement("div");
                     newbox.setAttribute("class", "body");
                     $("playground").appendChild(newbox);
                     boxes.push(newbox);
-                    flag = false;
+                    is_contact = false;
                 }
             }
 
-            //confirmWidth-检查蛇有没有超出左右边界
-            function confirmWidth() {
+            //检查蛇有没有超出左右边界
+            function confirmBorder() {
                 if (snake.offsetLeft <= -1) {
                     clearInterval(t2);
                     gameover();
                 } else if (snake.offsetLeft >= snake.parentElement.clientWidth - snake.clientWidth) {
                     clearInterval(t2);
                     gameover();
-                } else {
-                    confirmBody();
-                }
-            }
-            //confirmHeight-检查蛇有没有超出上下边界
-            function confirmHeight() {
-                if (snake.offsetTop <= -1) {
+                } else if (snake.offsetTop <= -1) {
                     clearInterval(t2);
                     gameover();
                 } else if (snake.offsetTop >= snake.parentElement.clientHeight - snake.clientHeight) {
@@ -249,10 +232,10 @@
             function confirmBody() {
                 if (boxes.length > 2) {
                     for (i = 3; i < boxes.length; i++) {
-                        flag = check(snake, boxes[i]);
-                        if (flag == true) {
+                        is_contact = check_is_contact(snake, boxes[i]);
+                        if (is_contact == true) {
                             gameover();
-                            flag = false;
+                            is_contact = false;
                         }
                     }
                 }
@@ -264,17 +247,18 @@
             //         得分归零.
             function gameover() {
                 //游戏结束时弹窗的内容
-                // var str = "游戏结束！！！您的得分是：" + score;
+                let str = "游戏结束！！！您的得分是：" + score;
                 alert(str);
                 window.location.reload();
-                score=0;
-                $("score").innerHTML =0;
+
+                score = 0;
+                $("score").innerHTML = 0;
                 body.remove;
                 boxes.remove;
-                num=0;
-                flag=false;
-                clearInterval(t2);
-                clearInterval(t1);
+                num = 0;
+                is_contact = false;
+                clearInterval(t1, t2);
+                // clearInterval();
                 snake.style.top = 100 + "px";
                 snake.style.left = 100 + "px";
                 foods.style.top = 300 + "px";
@@ -282,11 +266,11 @@
                 document.querySelector(".body").remove;
             }
             //check-a和b碰撞则返回true
-            function check(a, b) {
-                var aLeft = a.offsetLeft;
-                var aTop = a.offsetTop;
-                var bLeft = b.offsetLeft;
-                var bTop = b.offsetTop;
+            function check_is_contact(a, b) {
+                let aLeft = a.offsetLeft;
+                let aTop = a.offsetTop;
+                let bLeft = b.offsetLeft;
+                let bTop = b.offsetTop;
                 if (aLeft + a.clientWidth >= bLeft && aTop + a.clientHeight >= bTop) {
                     if (aLeft <= bLeft + b.clientWidth && aTop <= bTop + b.clientHeight) {
                         return true;
