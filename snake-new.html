@@ -111,74 +111,84 @@
             let speed = 10;//蛇的移动速度
             let score = 0;//得分
             let is_contact = false;//是否碰撞
-
-            let boxes = [];//div元素数组，元素是class为body的div元素
-
-            //t1计时器初始化
-            let t1 = window.setInterval(() => {//记录snake盒子走过的所有位置，放入数组body
+            let boxes = [];//食物:div.class元素数组
+            let t1 = setTimeout(function fn() {
                 body.push([snake.offsetLeft, snake.offsetTop]);
-                console.log(body[num][0]);
+                console.log("x:", body[num][0], "-", "y:", body[num][1]);
                 confirmBorder();
                 follow();
                 food();
-            }, speed);
+                setTimeout(fn, speed)
+            }, speed)
+            let t2;
+            let keydown = false;
 
-
-
-
-            //keydown函数-判断玩家按下的按键（wsad）并按指令运动snake
-            //创建新计时器来每零点一秒移动一次snake
-            //同时验证是否碰壁，并让body跟随snake移动
+            //监听键盘事件
             document.onkeydown = function (e) {
                 //浏览器传入的event，在ie中需要用window.event获取
                 let evt = e || window.event;
                 //从event中获取用户按下的按键的ascII码，在火狐中需要用event.which获取
                 let key = evt.which || evt.KeyCode;
-                //将不同ascII码指令分开处理
-                let t2 = null;
+                clearTimeout(t2)
                 switch (key) {
-                    case 65, 75:        //左
+                    case 65: case 75:        //左
                         {
-                            clearInterval(t2);
-                            t2 = setInterval(() => {
+                            t2 = setTimeout(function fn() {
                                 snake.style.left = snake.offsetLeft - 1 + "px";
                                 snake.style.top = snake.offsetTop + "px";
-                            }, speed);
+                                if (!keydown) {
+                                    setTimeout(fn, speed)
+                                } else {
+                                    clearTimeout()
+                                }
+                            }, speed)
+                            break;
                         }
-                        break;
-                    case 87, 72:         //上
+                    case 87: case 72:         //上
                         {
-                            clearInterval(t2);
-                            t2 = setInterval(() => {
+                            t2 = setTimeout(function fn() {
                                 snake.style.top = snake.offsetTop - 1 + "px";
                                 snake.style.left = snake.offsetLeft + "px";
-                            }, speed);
+                                if (!keydown) {
+                                    setTimeout(fn, speed)
+                                } else {
+                                    clearTimeout()
+                                }
+                            }, speed)
                             break;
                         }
-                    case 68, 77:        //右
+                    case 68: case 77:        //右
                         {
-                            clearInterval(t2);
-                            t2 = setInterval(() => {
+                            t2 = setTimeout(function fn() {
                                 snake.style.left = snake.offsetLeft + 1 + "px";
                                 snake.style.top = snake.offsetTop + "px";
-                            }, speed);
+                                if (!keydown) {
+                                    setTimeout(fn, speed)
+                                } else {
+                                    clearTimeout()
+                                }
+                            }, speed)
                             break;
                         }
-                    case 83, 80:        //下
+                    case 83: case 80:        //下
                         {
-                            clearInterval(t2);
-                            t2 = setInterval(() => {
+                            t2 = setTimeout(function fn() {
                                 snake.style.top = snake.offsetTop + 1 + "px";
                                 snake.style.left = snake.offsetLeft + "px";
-                            }, speed);
+                                if (!keydown) {
+                                    setTimeout(fn, speed)
+                                } else {
+                                    clearTimeout()
+                                }
+                            }, speed)
+                            break;
                         }
-                        break;
                     default:
                         break;
                 }
             }
 
-            //follow-如果body存在，让body跟随snake移动
+            //让body跟随snake移动
             function follow() {
                 num += 1;
                 if (score > 0) {
@@ -210,7 +220,7 @@
                 }
             }
 
-            //检查蛇有没有超出左右边界
+            //检查蛇头有没有超出左右边界
             function confirmBorder() {
                 if (snake.offsetLeft <= -1) {
                     clearInterval(t2);
@@ -228,7 +238,7 @@
                     confirmBody();
                 }
             }
-            //confirmBody-检查蛇有没有碰撞自身
+            //检查蛇头有没有碰撞自身
             function confirmBody() {
                 if (boxes.length > 2) {
                     for (i = 3; i < boxes.length; i++) {
@@ -241,31 +251,29 @@
                 }
             }
             //gameover-游戏结束:
-            //         清空蛇的身体、计时器，
-            //         将蛇头放回原位,
-            //         弹窗显示游戏结束，玩家得分
-            //         得分归零.
+            //存储数据,页面刷新
             function gameover() {
                 //游戏结束时弹窗的内容
                 let str = "游戏结束！！！您的得分是：" + score;
-                alert(str);
+                // alert(str);
+                window.localStorage.setItem("得分", score);
                 window.location.reload();
 
-                score = 0;
-                $("score").innerHTML = 0;
-                body.remove;
-                boxes.remove;
-                num = 0;
-                is_contact = false;
-                clearInterval(t1, t2);
-                // clearInterval();
-                snake.style.top = 100 + "px";
-                snake.style.left = 100 + "px";
-                foods.style.top = 300 + "px";
-                foods.style.left = 300 + "px";
-                document.querySelector(".body").remove;
+                // score = 0;
+                // $("score").innerHTML = 0;
+                // body.remove;
+                // boxes.remove;
+                // num = 0;
+                // is_contact = false;
+                // clearInterval(t1, t2);
+                // // clearInterval();
+                // snake.style.top = 100 + "px";
+                // snake.style.left = 100 + "px";
+                // foods.style.top = 300 + "px";
+                // foods.style.left = 300 + "px";
+                // document.querySelector(".body").remove;
             }
-            //check-a和b碰撞则返回true
+            //检查碰撞的工具函数
             function check_is_contact(a, b) {
                 let aLeft = a.offsetLeft;
                 let aTop = a.offsetTop;
@@ -277,6 +285,10 @@
                     }
                 }
                 return false;
+            }
+            //$通过id返回元素
+            function $(id) {
+                return document.getElementById(id);
             }
         }
     </script>
